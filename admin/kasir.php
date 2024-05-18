@@ -4,6 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kasir Restaurant</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #343a40;
+    }
+    a {
+        display: inline-block;
+        margin: 10px 0;
+        color: #007bff;
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #495057;
+    }
+    input[type="text"], select, input[type="number"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+    .pesananItem {
+        border-top: 1px solid #ced4da;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+    button {
+        padding: 5px 10px;
+        margin: 5px 0;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #ffffff;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .btn-remove {
+        background-color: #dc3545;
+    }
+    .btn-remove:hover {
+        background-color: #c82333;
+    }
+</style>
 </head>
 <body>
     <a href="dashboard.php">Dashboard</a>
@@ -26,7 +90,7 @@
                 <button type="button" onclick="kurangi(1)">-</button>
                 <input type="number" id="jumlah1" name="jumlah[]" value="1">
                 <button type="button" onclick="tambah(1)">+</button>
-                <button type="button" onclick="hapus(1)">Hapus</button><br><br>
+                <button type="button" class="btn-remove" onclick="hapus(1)">Hapus</button><br><br>
             </div>
         </div>
 
@@ -55,7 +119,7 @@
                 <button type="button" onclick="kurangi(${pesananCount})">-</button>
                 <input type="number" id="jumlah${pesananCount}" name="jumlah[]" value="1">
                 <button type="button" onclick="tambah(${pesananCount})">+</button>
-                <button type="button" onclick="hapus(${pesananCount})">Hapus</button><br><br>
+                <button type="button" class="btn-remove" onclick="hapus(${pesananCount})">Hapus</button><br><br>
             `;
             container.appendChild(newDiv);
         }

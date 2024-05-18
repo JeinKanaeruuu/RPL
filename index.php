@@ -8,32 +8,45 @@ if(isset($_POST['submit'])){
     $phonenumber = $_POST['phonenumber'];
     $bookingdate = date('Y-m-d', strtotime($_POST['bookingdate'])); // Ubah format tanggal
     $bookingtime = $_POST['bookingtime'];
-    $tablenumber = $_POST['tableNumber'];
     $noadults = $_POST['noadults'];
     $nochildrens = $_POST['nochildrens'];
     
     // Periksa apakah reservasi sudah ada untuk meja yang sama pada hari yang sama dan waktu yang sama
-    $check_query = "SELECT * FROM tblbookings WHERE bookingDate = '$bookingdate' AND bookingTime = '$bookingtime' AND tableNumber = '$tablenumber'";
+    $check_query = "SELECT * FROM tblbookings WHERE bookingDate = '$bookingdate' AND bookingTime = '$bookingtime'";
     $check_result = mysqli_query($con, $check_query);
     
     if(mysqli_num_rows($check_result) > 0){
         echo '<script>alert("Sorry, the table is already booked for the specified date and time. Please choose another table or time.")</script>';
-        // Tambahkan kode di sini untuk menampilkan pesan "Meja sudah direserve"
-        echo '<script>alert("Meja sudah direserve")</script>';
     } else {
         // Jika tidak ada reservasi yang ada, masukkan reservasi baru ke database
         $bno = mt_rand(100000000,9999999999);
-        $query = mysqli_query($con,"INSERT INTO tblbookings (bookingNo, fullName, emailId, phoneNumber, bookingDate, bookingTime, tableNumber, noAdults, noChildrens) VALUES ('$bno', '$fname', '$emailid', '$phonenumber', '$bookingdate', '$bookingtime', '$tablenumber', '$noadults', '$nochildrens')");
+        $query = mysqli_query($con,"INSERT INTO tblbookings (bookingNo, fullName, emailId, phoneNumber, bookingDate, bookingTime, noAdults, noChildrens) VALUES ('$bno', '$fname', '$emailid', '$phonenumber', '$bookingdate', '$bookingtime', '$noadults', '$nochildrens')");
         
         if($query){
-            echo '<script>alert("Your order sent successfully. Booking number is ' . $bno . '")</script>';
-            echo "<script type='text/javascript'> document.location = 'index.php'; </script>";
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var bookingNumber = '$bno';
+                    document.getElementById('bookingNumber').textContent = bookingNumber;
+
+                    var copyButton = document.getElementById('copyButton');
+                    copyButton.addEventListener('click', function() {
+                        navigator.clipboard.writeText(bookingNumber).then(function() {
+                            alert('Booking number copied to clipboard');
+                        }).catch(function(error) {
+                            alert('Failed to copy booking number: ' + error);
+                        });
+                    });
+
+                    $('#bookingModal').modal('show');
+                });
+            </script>";
         } else {
             echo "<script>alert('Something went wrong. Please try again.');</script>";
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,10 +66,9 @@ if(isset($_POST['submit'])){
     <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
 </head>
 
-
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" >
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">Restaurant Booking</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +110,7 @@ if(isset($_POST['submit'])){
             <div class="information">
                 <div class="main">
                     <div class="form-left-w3l">
-                        <input id="datepicker" name="bookingdate" type="text" placeholder="Booking Date &" required="">
+                        <input id="datepicker" name="bookingdate" type="text" placeholder="Booking Date" required="">
                         <input type="text" id="timepicker" name="bookingtime" class="timepicker form-control hasWickedpicker" placeholder="Time" required="" onkeypress="return false;">
                         <div class="clear"></div>
                     </div>
@@ -115,21 +127,6 @@ if(isset($_POST['submit'])){
                             <option value="6">6</option>
                             <option value="7">7</option>
                             <option value="8">8</option>
-                        </select>
-                    </div>
-                    <div class="form-left-w3l">
-                        <select class="form-control" name="tableNumber" required>
-                            <option value="">Table number</option>
-                            <?php
-                            // Ambil data meja yang tersedia dari database
-                            $table_query = "SELECT * FROM tblrestables WHERE status = 'available'";
-                            $table_result = mysqli_query($con, $table_query);
-                            
-                            // Loop melalui hasil query untuk menampilkan pilihan meja
-                            while($row = mysqli_fetch_assoc($table_result)) {
-                                echo "<option value='" . $row['tableNumber'] . "'>" . $row['tableNumber'] . "</option>";
-                            }
-                            ?>
                         </select>
                     </div>
                     <div class="form-right-w3ls">
@@ -156,9 +153,32 @@ if(isset($_POST['submit'])){
             </div>
         </form>
     </div>
-    <!-- js -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bookingModalLabel">Booking Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Your order was sent successfully. Booking number is <span id="bookingNumber"></span>.
+            <button id="copyButton" class="btn btn-primary btn-sm">Copy</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery -->
     <script type='text/javascript' src='js/jquery-2.2.3.min.js'></script>
-    <!-- //js -->
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <!-- Calendar -->
     <script src="js/jquery-ui.js"></script>
     <script>
@@ -166,12 +186,10 @@ if(isset($_POST['submit'])){
             $("#datepicker,#datepicker1,#datepicker2,#datepicker3").datepicker();
         });
     </script>
-    <!-- //Calendar -->
     <!-- Time -->
     <script type="text/javascript" src="js/wickedpicker.js"></script>
     <script type="text/javascript">
         $('.timepicker,.timepicker1').wickedpicker({ twentyFour: false });
     </script>
-    <!-- //Time -->
 </body>
 </html>
